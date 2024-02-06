@@ -39,8 +39,8 @@ const Pages = () => {
         <MainLayout>
           <Suspense fallback={<div>Loading...</div>}>
             <Routes>
-              <Route path={'/'} element={<Main />} />
               <Route path={'/cards/*'} element={<Cards />} />
+              <Route path={'/'} element={<Main />} />
               <Route path={'/transactions/*'} element={<Transactions />} />
             </Routes>
           </Suspense>
