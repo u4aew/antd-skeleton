@@ -1,0 +1,31 @@
+{
+  "name": "micro-frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint 'packages/**/*.js'",
+    "lint-fix": "eslint --fix 'packages/**/*.js'",
+    "format": "prettier --write 'packages/**/*.js'",
+    "build:cards": "yarn workspace cards build",
+    "build:host": "yarn workspace host build",
+    "build:transactions": "yarn workspace transactions build",
+    "build:shared": "yarn workspace shared build"
+  },
+  "author": "Sergey Uchaev <dialoggg1994@gmail.com>",
+  "license": "ISC",
+  "repository": "https://github.com/u4aew/module-federation-playground.git",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "eslint": "^8.55.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "prettier": "^3.1.1"
+  }
+}

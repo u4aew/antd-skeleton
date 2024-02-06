@@ -1,0 +1,95 @@
+name: Build and Deploy Transactions Project
+
+on:
+  push:
+    paths:
+      - 'packages/transactions/**'
+  pull_request:
+    paths:
+      - 'packages/transactions/**'
+
+jobs:
+  install-dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Cache Node modules
+        uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install Dependencies
+        run: yarn install
+
+  test-and-build:
+    needs: install-dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Cache Node modules
+        uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Build Shared Modules
+        run: yarn workspace shared build
+
+      - name: Test and Build Transactions
+        run: |
+          yarn workspace transactions test
+          yarn workspace transactions build
+
+      - name: Archive Build Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: shared-artifacts
+          path: packages/transactions/dist
+
+  deploy-transactions:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Cache Node modules
+        uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: shared-artifacts
+          path: ./transactions
+
+      - name: Deploy to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: 138.68.115.124
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: 'transactions/*'
+          target: '/usr/share/nginx/html/crud/apps'
