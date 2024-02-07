@@ -58,7 +58,7 @@ jobs:
       - name: Archive Build Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: shared-artifacts
+          name: host-artifacts
           path: packages/host/dist
 
   deploy-host:
@@ -73,22 +73,14 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Cache Node modules
-        uses: actions/cache@v2
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-
       - name: Download Build Artifacts
         uses: actions/download-artifact@v2
         with:
-          name: shared-artifacts
-          path: ./temp
+          name: host-artifacts
+          path: dist
 
-      - name: Move files to correct directory
-        run: |
-          mv ./temp/* ./
-          rm -rf ./temp
+      - name: List files in dist directory
+        run: ls -la dist
 
       - name: Deploy to Server
         uses: appleboy/scp-action@master
