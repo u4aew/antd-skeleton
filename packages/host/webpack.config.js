@@ -72,10 +72,10 @@ module.exports = {
     new ModuleFederationPlugin({
       remotes: {
         'remote-modules-transactions': isProduction
-          ? 'remoteModulesTransactions@https://microfrontend.fancy-app.site/apps/transactions/remoteEntry.js'
-          : 'remoteModulesTransactions@http://localhost:3003/remoteEntry.js',
+          ? 'remoteModulesTransactions@https://crud.fancy-app.site/apps/transactions/remoteEntry.js'
+          : 'remoteModulesTransactions@http://crud:3003/remoteEntry.js',
         'remote-modules-cards': isProduction
-          ? 'remoteModulesCards@https://microfrontend.fancy-app.site/apps/cards/remoteEntry.js'
+          ? 'remoteModulesCards@https://crud.fancy-app.site/apps/cards/remoteEntry.js'
           : 'remoteModulesCards@http://localhost:3001/remoteEntry.js',
       },
       shared: {

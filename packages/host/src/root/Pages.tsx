@@ -1,12 +1,14 @@
 import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Main } from '../pages/Main';
+import { Auth } from '../pages/Auth';
 import { MainLayout } from '@host/layouts/MainLayout';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserInfo } from '@host/store/features/common/slice';
 import { AppDispatch } from '@host/store/store';
 import { isLoadingUserSelector } from '@host/store/features/common/selectors';
 import { Spin } from 'antd';
+import { AuthLayout } from '@host/layouts/AuthLayout';
 
 const Cards = React.lazy(() => import('remote-modules-cards/Cards'));
 const Transactions = React.lazy(
@@ -36,15 +38,20 @@ const Pages = () => {
           <Spin />
         </div>
       ) : (
-        <MainLayout>
-          <Suspense fallback={<div>Loading...</div>}>
-            <Routes>
-              <Route path={'/cards/*'} element={<Cards />} />
-              <Route path={'/'} element={<Main />} />
-              <Route path={'/transactions/*'} element={<Transactions />} />
-            </Routes>
-          </Suspense>
-        </MainLayout>
+        <AuthLayout>
+          <Routes>
+            <Route path={'/'} element={<Auth />}></Route>
+          </Routes>
+        </AuthLayout>
+        // <MainLayout>
+        //   <Suspense fallback={<div>Loading...</div>}>
+        //     <Routes>
+        //       <Route path={'/'} element={<Auth />}></Route>
+        //       <Route path={'/cards/*'} element={<Cards />} />
+        //       <Route path={'/transactions/*'} element={<Transactions />} />
+        //     </Routes>
+        //   </Suspense>
+        // </MainLayout>
       )}
     </Router>
   );
