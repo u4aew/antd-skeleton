@@ -2,12 +2,14 @@ import { Button, Card, Checkbox, Form, Input } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { auth } from '@host/store/features/auth/slice';
+import { isLoadingAuthSelector } from '@host/store/features/auth/selectors';
 
 export const Auth = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isLoadingAuth = useSelector(isLoadingAuthSelector);
   const onFinish = async (values) => {
     try {
       // @ts-ignore
@@ -50,7 +52,12 @@ export const Auth = () => {
           </Link>
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+          <Button
+            loading={isLoadingAuth}
+            type="primary"
+            htmlType="submit"
+            style={{ width: '100%' }}
+          >
             Войти
           </Button>
           Или <Link to="/register">зарегистрироваться!</Link>
