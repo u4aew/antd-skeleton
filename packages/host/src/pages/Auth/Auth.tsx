@@ -1,15 +1,19 @@
 import { Button, Card, Checkbox, Form, Input } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { auth } from '@host/store/features/auth/slice';
 
 export const Auth = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const onFinish = async (values) => {
-    // @ts-ignore
-    const result = await dispatch(auth(values));
+    try {
+      // @ts-ignore
+      const result = await dispatch(auth(values));
+      navigate('/');
+    } catch (e) {}
   };
 
   return (
@@ -41,10 +45,6 @@ export const Auth = () => {
           />
         </Form.Item>
         <Form.Item>
-          <Form.Item name="remember" valuePropName="checked" noStyle>
-            <Checkbox>Запомнить меня</Checkbox>
-          </Form.Item>
-
           <Link to="/forgot-password" style={{ float: 'right' }}>
             Забыли пароль?
           </Link>

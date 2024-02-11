@@ -1,19 +1,23 @@
 import { configureStore, Middleware } from '@reduxjs/toolkit';
 import rootReducer, { RootState } from './features';
-const windowStateMiddleware: Middleware<{}, RootState> =
+
+const localStorageKey = 'reduxState';
+
+const stateToLocalStorageMiddleware: Middleware<{}, RootState> =
   (store) => (next) => (action) => {
     const result = next(action);
-    (window as any).host = store.getState();
+    // Сохраняем состояние в localStorage
+    localStorage.setItem(localStorageKey, JSON.stringify(store.getState()));
     return result;
   };
 
-const loadFromWindow = (): RootState | undefined => {
+const loadFromLocalStorage = (): RootState | undefined => {
   try {
-    const hostState = (window as any).host;
-    if (hostState === null) return undefined;
-    return hostState;
+    const serializedState = localStorage.getItem(localStorageKey);
+    if (serializedState === null) return undefined;
+    return JSON.parse(serializedState) as RootState;
   } catch (e) {
-    console.warn('Error loading state from window:', e);
+    console.warn('Error loading state from localStorage:', e);
     return undefined;
   }
 };
@@ -21,8 +25,8 @@ const loadFromWindow = (): RootState | undefined => {
 const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(windowStateMiddleware),
-  preloadedState: loadFromWindow(),
+    getDefaultMiddleware().concat(stateToLocalStorageMiddleware),
+  preloadedState: loadFromLocalStorage(),
 });
 
 export default store;

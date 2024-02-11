@@ -1,59 +1,65 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { Main } from '../pages/Main';
-import { Auth } from '../pages/Auth';
-import { MainLayout } from '@host/layouts/MainLayout';
-import { useDispatch, useSelector } from 'react-redux';
-import { getUserInfo } from '@host/store/features/common/slice';
-import { AppDispatch } from '@host/store/store';
-import { isLoadingUserSelector } from '@host/store/features/common/selectors';
 import { Spin } from 'antd';
-import { AuthLayout } from '@host/layouts/AuthLayout';
 
+import RequireAuth from '../components/auth/RequireAuth';
+
+import { MainLayout } from '@host/layouts/MainLayout';
+import { AuthLayout } from '@host/layouts/AuthLayout';
+import { Auth } from '../pages/Auth';
+import { Main } from '../pages/Main';
 const Cards = React.lazy(() => import('remote-modules-cards/Cards'));
 const Transactions = React.lazy(
   () => import('remote-modules-transactions/Transactions'),
 );
 
 const Pages = () => {
-  const dispatch: AppDispatch = useDispatch();
-  const isLoading = useSelector(isLoadingUserSelector);
-  useEffect(() => {
-    const load = async () => {
-      await dispatch(getUserInfo());
-    };
-    load();
-  }, []);
   return (
     <Router>
-      {isLoading ? (
-        <div
-          style={{
-            minHeight: '100vh',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <Spin />
-        </div>
-      ) : (
-        <AuthLayout>
-          <Routes>
-            <Route path={'/'} element={<Auth />}></Route>
-          </Routes>
-        </AuthLayout>
-        // <MainLayout>
-        //   <Suspense fallback={<div>Loading...</div>}>
-        //     <Routes>
-        //       <Route path={'/'} element={<Auth />}></Route>
-        //       <Route path={'/cards/*'} element={<Cards />} />
-        //       <Route path={'/transactions/*'} element={<Transactions />} />
-        //     </Routes>
-        //   </Suspense>
-        // </MainLayout>
-      )}
+      <Suspense fallback={<Spin size="large" />}>
+        <Routes>
+          <Route
+            path="/login"
+            element={
+              <AuthLayout>
+                <Auth />
+              </AuthLayout>
+            }
+          />
+          <Route
+            path="/"
+            element={
+              <RequireAuth>
+                <MainLayout>
+                  <Main />
+                </MainLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/cards/*"
+            element={
+              <RequireAuth>
+                <MainLayout>
+                  <Cards />
+                </MainLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/transactions/*"
+            element={
+              <RequireAuth>
+                <MainLayout>
+                  <Transactions />
+                </MainLayout>
+              </RequireAuth>
+            }
+          />
+        </Routes>
+      </Suspense>
     </Router>
   );
 };
+
 export default Pages;

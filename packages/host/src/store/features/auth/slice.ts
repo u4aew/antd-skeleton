@@ -1,12 +1,6 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import config from '@host/config';
-import { types as SharedTypes } from 'shared';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
-export interface ResponseError {
-  code?: string;
-  description?: string;
-  message?: string;
-}
+import config from '@host/config';
 
 interface AuthParams {
   email: string;
@@ -15,68 +9,87 @@ interface AuthParams {
 
 interface AuthResponse {
   data: {
-    data: {
-      token: string;
-    };
+    token: string;
   };
+  status: string;
 }
 
 interface AuthError {
   message: string;
+  error: string;
+  statusCode: number;
 }
 
-export interface SliceState {
-  fetchingState: SharedTypes.EnumFetch;
-  error: ResponseError | null;
+interface SliceState {
+  token: string | null;
+  fetchingState: 'idle' | 'pending' | 'fulfilled' | 'rejected';
+  error: string | null;
 }
 
 const initialState: SliceState = {
-  fetchingState: SharedTypes.EnumFetch.Idle,
+  token: null,
+  fetchingState: 'idle',
   error: null,
 };
 
-/**
- * Auth
- */
 export const auth = createAsyncThunk<
-  AuthResponse,
-  AuthParams,
-  { rejectValue: AuthError }
->('auth', async ({ email, password }, { rejectWithValue }) => {
+  string, // Return type of the payload creator
+  AuthParams, // First argument to the payload creator
+  { rejectValue: AuthError } // Types for ThunkAPI
+>('auth/login', async (authData, { rejectWithValue }) => {
   try {
-    const { data } = await axios.post<AuthResponse>(config.routes.auth, {
-      email,
-      password,
-    });
-    return data;
+    const response = await axios.post<AuthResponse>(
+      config.routes.auth,
+      authData,
+    );
+    return response.data.data.token; // Only return the token
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
+      // Преобразуем ошибку к типу AuthError
       return rejectWithValue(error.response.data as AuthError);
     } else {
-      throw error;
+      // Возвращаем обобщенную ошибку, если ответ сервера не содержит данных
+      return rejectWithValue({
+        message: 'An unknown error occurred',
+        error: 'UnknownError',
+        statusCode: 500,
+      });
     }
   }
 });
-const slice = createSlice({
+
+const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    reset: (): SliceState => initialState,
+    logout: (state) => {
+      state.token = null;
+      state.fetchingState = 'idle';
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
-    /** auth */
-    builder.addCase(auth.pending, (state) => {
-      state.fetchingState = SharedTypes.EnumFetch.Pending;
-      state.error = null;
-    });
-    builder.addCase(auth.fulfilled, (state, data) => {
-      state.fetchingState = SharedTypes.EnumFetch.Fulfilled;
-    });
-    builder.addCase(auth.rejected, (state, action) => {
-      state.fetchingState = SharedTypes.EnumFetch.Rejected;
-      state.error = action.error;
-    });
+    builder
+      .addCase(auth.pending, (state) => {
+        state.fetchingState = 'pending';
+        state.error = null;
+      })
+      .addCase(auth.fulfilled, (state, action: PayloadAction<string>) => {
+        state.fetchingState = 'fulfilled';
+        state.token = action.payload;
+        state.error = null; // Очищаем ошибку при успешной авторизации
+      })
+      .addCase(auth.rejected, (state, action) => {
+        state.fetchingState = 'rejected';
+        state.error = action.payload?.message || 'Unknown error';
+        // Если нужно, можно также сохранить error и statusCode
+        // state.errorDetails = {
+        //   error: action.payload?.error,
+        //   statusCode: action.payload?.statusCode
+        // };
+      });
   },
 });
 
-export default slice.reducer;
+export const { logout } = authSlice.actions;
+export default authSlice.reducer;
