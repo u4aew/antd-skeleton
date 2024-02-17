@@ -58,27 +58,27 @@ const slice = createSlice({
   },
   extraReducers: (builder) => {
     /** getUserInfo */
-    builder.addCase(getUserInfo.pending, (state) => {
+    builder.addCase(getUserInfo.pending, (state: SliceState) => {
       state.fetchingState = SharedTypes.EnumFetch.Pending;
       state.error = null;
     });
-    builder.addCase(getUserInfo.fulfilled, (state, action) => {
-      state.user = action.payload;
+    builder.addCase(getUserInfo.fulfilled, (state: SliceState, action) => {
+      // state.user = action.payload;
       state.fetchingState = SharedTypes.EnumFetch.Fulfilled;
     });
-    builder.addCase(getUserInfo.rejected, (state, action) => {
+    builder.addCase(getUserInfo.rejected, (state: SliceState, action) => {
       state.fetchingState = SharedTypes.EnumFetch.Rejected;
-      state.error = action.error;
+      // state.error = action.error;
     });
     /** setUserRole */
-    builder.addCase(setUserRole.pending, (state) => {
+    builder.addCase(setUserRole.pending, (state: SliceState) => {
       state.error = null;
     });
-    builder.addCase(setUserRole.fulfilled, (state, action) => {
-      state.user = action.payload;
+    builder.addCase(setUserRole.fulfilled, (state: SliceState, action) => {
+      // state.user = action.payload;
     });
-    builder.addCase(setUserRole.rejected, (state, action) => {
-      state.error = action.error;
+    builder.addCase(setUserRole.rejected, (state: SliceState, action) => {
+      // state.error = action.error;
     });
   },
 });

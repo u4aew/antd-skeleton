@@ -8,6 +8,7 @@ const config = {
   routes: {
     user: `${MAIN_PATH}/common/user`,
     auth: `${MAIN_PATH}/auth/login`,
+    register: `${MAIN_PATH}/auth/login`,
   },
 };
 

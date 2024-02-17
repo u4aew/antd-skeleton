@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { authTokenSelector } from '@host/store/features/auth/selectors';
 
-const RequireAuth = ({ children }) => {
+export const RoutesProtected = ({ children }) => {
   const authToken = useSelector(authTokenSelector);
   const location = useLocation();
 
@@ -13,5 +13,3 @@ const RequireAuth = ({ children }) => {
 
   return children;
 };
-
-export default RequireAuth;

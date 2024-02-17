@@ -2,11 +2,11 @@ import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Spin } from 'antd';
 
-import RequireAuth from '../components/auth/RequireAuth';
-
+import { RoutesProtected } from '../components/Routes';
 import { MainLayout } from '@host/layouts/MainLayout';
 import { AuthLayout } from '@host/layouts/AuthLayout';
 import { Auth } from '../pages/Auth';
+import { Register } from '../pages/Register';
 import { Main } from '../pages/Main';
 const Cards = React.lazy(() => import('remote-modules-cards/Cards'));
 const Transactions = React.lazy(
@@ -27,33 +27,41 @@ const Pages = () => {
             }
           />
           <Route
+            path="/register"
+            element={
+              <AuthLayout>
+                <Register />
+              </AuthLayout>
+            }
+          />
+          <Route
             path="/"
             element={
-              <RequireAuth>
+              <RoutesProtected>
                 <MainLayout>
                   <Main />
                 </MainLayout>
-              </RequireAuth>
+              </RoutesProtected>
             }
           />
           <Route
             path="/cards/*"
             element={
-              <RequireAuth>
+              <RoutesProtected>
                 <MainLayout>
                   <Cards />
                 </MainLayout>
-              </RequireAuth>
+              </RoutesProtected>
             }
           />
           <Route
             path="/transactions/*"
             element={
-              <RequireAuth>
+              <RoutesProtected>
                 <MainLayout>
                   <Transactions />
                 </MainLayout>
-              </RequireAuth>
+              </RoutesProtected>
             }
           />
         </Routes>
