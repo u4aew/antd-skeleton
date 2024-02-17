@@ -1,26 +1,13 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import config from '@host/config';
 import { types as SharedTypes } from 'shared';
 
-interface RegisterParams {
-  email: string;
-  password: string;
-  name: string;
-}
-
-interface RegisterResponse {
-  data: {
-    token: string;
-  };
-  status: string;
-}
-
-interface RegisterError {
-  message: string;
-  error: string;
-  statusCode: number;
-}
+// interface RegisterParams {
+//   email: string;
+//   password: string;
+//   name: string;
+// }
 
 interface SliceState {
   fetchingState: SharedTypes.EnumFetch;
@@ -32,31 +19,17 @@ const initialState: SliceState = {
   error: null,
 };
 
-export const register = createAsyncThunk<
-  string, // Return type of the payload creator
-  RegisterParams, // First argument to the payload creator
-  { rejectValue: RegisterError } // Types for ThunkAPI
->('register', async (authData, { rejectWithValue }) => {
-  try {
-    const response = await axios.post<RegisterResponse>(
-      config.routes.auth,
-      authData,
-    );
-    return response.data.data.token; // Only return the token
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      // Преобразуем ошибку к типу AuthError
-      return rejectWithValue(error.response.data as RegisterError);
-    } else {
-      // Возвращаем обобщенную ошибку, если ответ сервера не содержит данных
-      return rejectWithValue({
-        message: 'An unknown error occurred',
-        error: 'UnknownError',
-        statusCode: 500,
-      });
+export const register = createAsyncThunk(
+  'register',
+  async (registerData, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.post(config.routes.register, registerData);
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
     }
-  }
-});
+  },
+);
 
 const authSlice = createSlice({
   name: 'register',
@@ -73,16 +46,12 @@ const authSlice = createSlice({
         state.fetchingState = SharedTypes.EnumFetch.Pending;
         state.error = null;
       })
-      .addCase(
-        register.fulfilled,
-        (state: SliceState, action: PayloadAction<string>) => {
-          state.fetchingState = SharedTypes.EnumFetch.Fulfilled;
-          state.error = null;
-        },
-      )
+      .addCase(register.fulfilled, (state: SliceState) => {
+        state.fetchingState = SharedTypes.EnumFetch.Fulfilled;
+        state.error = null;
+      })
       .addCase(register.rejected, (state: SliceState, action) => {
         state.fetchingState = SharedTypes.EnumFetch.Rejected;
-        state.error = action.payload?.message || 'Unknown error';
       });
   },
 });

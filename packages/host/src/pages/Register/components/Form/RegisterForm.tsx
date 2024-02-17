@@ -4,9 +4,10 @@ import React, { useCallback } from 'react';
 
 type PropsFormRegister = {
   onSubmit: (values: Record<string, string>) => void;
+  loading: boolean;
 };
 
-export const FormRegister = ({ onSubmit }: PropsFormRegister) => {
+export const RegisterForm = ({ onSubmit, loading }: PropsFormRegister) => {
   const [form] = Form.useForm();
   const handleSubmit = useCallback(async (values: Record<string, string>) => {
     onSubmit(values);
@@ -51,7 +52,11 @@ export const FormRegister = ({ onSubmit }: PropsFormRegister) => {
         rules={[{ required: true, message: 'Пожалуйста, введите ваш пароль!' }]}
         hasFeedback
       >
-        <Input.Password prefix={<LockOutlined />} placeholder="Пароль" />
+        <Input.Password
+          autoComplete="new-password"
+          prefix={<LockOutlined />}
+          placeholder="Пароль"
+        />
       </Form.Item>
 
       <Form.Item
@@ -70,7 +75,7 @@ export const FormRegister = ({ onSubmit }: PropsFormRegister) => {
       </Form.Item>
 
       <Form.Item>
-        <Button type="primary" htmlType="submit">
+        <Button loading={loading} type="primary" htmlType="submit">
           Зарегистрироваться
         </Button>
       </Form.Item>
